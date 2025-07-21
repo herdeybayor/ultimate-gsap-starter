@@ -1,3 +1,5 @@
+import gsap from "gsap";
+
 // Select the main floating action button (FAB)
 const fab = document.querySelector(".fab");
 
@@ -11,29 +13,62 @@ const radius = 100;
 let expanded = false;
 
 fab.addEventListener("click", () => {
-  expanded = !expanded;
+    expanded = !expanded;
 
-  // Toggle button symbol (＋ / ×)
-  fab.textContent = expanded ? "×" : "＋";
+    // Toggle button symbol (＋ / ×)
+    // fab.textContent = expanded ? "×" : "＋";
 
-  if (expanded) {
-    // Define arc of expansion: spread over 90 degrees
-    const arcSpan = Math.PI / 1.5; // radians
-    const startAngle = Math.PI / 2 + arcSpan / 2; // start at top-center
+    if (expanded) {
+        gsap.to(fab, {
+            rotation: 135,
+            duration: 0.5,
+            ease: "power2.out",
+        });
 
-    children.forEach((child, i) => {
-      // Distribute each child evenly across the arc
-      const angle = startAngle - i * (arcSpan / (children.length - 1));
+        // Define arc of expansion: spread over 90 degrees
+        const arcSpan = Math.PI / 1.5; // radians
+        const startAngle = Math.PI / 2 + arcSpan / 2; // start at top-center
 
-      // Polar to Cartesian conversion
-      const x = Math.cos(angle) * radius;
-      const y = -Math.sin(angle) * radius;
+        children.forEach((child, i) => {
+            // Distribute each child evenly across the arc
+            const angle = startAngle - i * (arcSpan / (children.length - 1));
 
-      // 🔜 Animation will go here
-    });
-  } else {
-    children.forEach((child) => {
-      // 🔜 Collapse animation will go here
-    });
-  }
+            // Polar to Cartesian conversion
+            const x = Math.cos(angle) * radius;
+            const y = -Math.sin(angle) * radius;
+
+            // 🔜 Animation will go here
+
+            gsap.to(child, {
+                x,
+                y,
+                opacity: 1,
+                scale: 1,
+                rotation: 360,
+                duration: 0.5,
+                ease: "expo.out",
+                delay: i * 0.1,
+            });
+        });
+    } else {
+        children.forEach((child, i) => {
+            // 🔜 Collapse animation will go here
+            gsap.to(fab, {
+                rotation: 0,
+                duration: 0.5,
+            });
+
+            gsap.to(child, {
+                x: 0,
+                y: 0,
+                opacity: 0,
+                scale: 0.2,
+                rotation: 0,
+                duration: 0.3,
+                ease: "expo.in",
+                pointerEvents: "none",
+                delay: (children.length - 1 - i) * 0.1,
+            });
+        });
+    }
 });
